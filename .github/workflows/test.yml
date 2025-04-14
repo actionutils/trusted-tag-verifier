@@ -38,9 +38,15 @@ jobs:
           echo "Tagger: ${{ steps.verify-shorthand.outputs.tagger-name }} <${{ steps.verify-shorthand.outputs.tagger-email }}>"
           echo "Message: ${{ steps.verify-shorthand.outputs.tag-message }}"
           
-          # Access specific fields from the verification result
+          # Access specific fields from the verification result using fromJSON
           echo "Verification Result:"
-          echo '${{ steps.verify-shorthand.outputs.verification-result }}' | jq
+          echo "Tag name: ${{ fromJSON(steps.verify-shorthand.outputs.verification-result).tag.name }}"
+          echo "Commit: ${{ fromJSON(steps.verify-shorthand.outputs.verification-result).tag.commit }}"
+          echo "Tagger name: ${{ fromJSON(steps.verify-shorthand.outputs.verification-result).tag.tagger.name }}"
+          echo "Tagger email: ${{ fromJSON(steps.verify-shorthand.outputs.verification-result).tag.tagger.email }}"
+          echo "Tagger timestamp: ${{ fromJSON(steps.verify-shorthand.outputs.verification-result).tag.tagger.timestamp }}"
+          echo "Verified: ${{ fromJSON(steps.verify-shorthand.outputs.verification-result).signature.verified }}"
+          echo "Signature timestamp: ${{ fromJSON(steps.verify-shorthand.outputs.verification-result).signature.timestamp }}"
       
       - name: Verify Tag (Explicit Parameters)
         id: verify-explicit
@@ -59,9 +65,15 @@ jobs:
           echo "Tagger: ${{ steps.verify-explicit.outputs.tagger-name }} <${{ steps.verify-explicit.outputs.tagger-email }}>"
           echo "Message: ${{ steps.verify-explicit.outputs.tag-message }}"
           
-          # Access specific fields from the verification result
+          # Access specific fields from the verification result using fromJSON
           echo "Verification Result:"
-          echo '${{ steps.verify-explicit.outputs.verification-result }}' | jq
+          echo "Tag name: ${{ fromJSON(steps.verify-explicit.outputs.verification-result).tag.name }}"
+          echo "Commit: ${{ fromJSON(steps.verify-explicit.outputs.verification-result).tag.commit }}"
+          echo "Tagger name: ${{ fromJSON(steps.verify-explicit.outputs.verification-result).tag.tagger.name }}"
+          echo "Tagger email: ${{ fromJSON(steps.verify-explicit.outputs.verification-result).tag.tagger.email }}"
+          echo "Tagger timestamp: ${{ fromJSON(steps.verify-explicit.outputs.verification-result).tag.tagger.timestamp }}"
+          echo "Verified: ${{ fromJSON(steps.verify-explicit.outputs.verification-result).signature.verified }}"
+          echo "Signature timestamp: ${{ fromJSON(steps.verify-explicit.outputs.verification-result).signature.timestamp }}"
       
       - name: Test Invalid Tag (Should Not Fail)
         id: verify-invalid
