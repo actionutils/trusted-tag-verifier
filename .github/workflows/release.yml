@@ -9,8 +9,21 @@ on:
       - labeled  # Run when PRs are labeled
 
 jobs:
+  verify-releaser:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify Trusted Tag Releaser
+        uses: ./
+        with:
+          repository: 'actionutils/trusted-tag-releaser'
+          tag: 'v0'
+
   # Post version bump information comment on PR when labeled
   release-preview-comment:
+    needs: [verify-releaser]
     if: github.event.action == 'labeled'
     permissions:
       pull-requests: write
@@ -20,6 +33,7 @@ jobs:
 
   # First check if a release is needed
   release-check:
+    needs: [verify-releaser]
     if: github.event.action != 'labeled'
     permissions:
       contents: read

@@ -37,7 +37,7 @@ This action verifies that Git tags are properly signed with Gitsign, extracts th
     tag: 'v1.0.0'
     fail-on-verification-error: 'true'
     certificate-oidc-issuer: 'https://token.actions.githubusercontent.com'
-    certificate-identity-regexp: '^https://github.com/'
+    certificate-identity-regexp: '^https://github.com/actionutils/trusted-tag-releaser'
 
 - name: Use Verification Results
   run: |
@@ -47,7 +47,7 @@ This action verifies that Git tags are properly signed with Gitsign, extracts th
     echo "Commit: ${{ steps.verify.outputs.commit-sha }}"
     echo "Tagger: ${{ steps.verify.outputs.tagger-name }} <${{ steps.verify.outputs.tagger-email }}>"
     echo "Message: ${{ steps.verify.outputs.tag-message }}"
-    
+
     # Access specific fields from the verification result
     TAG_NAME=$(echo '${{ steps.verify.outputs.verification-result }}' | jq -r '.tag.name')
     echo "Tag name from result: $TAG_NAME"
@@ -62,7 +62,7 @@ This action verifies that Git tags are properly signed with Gitsign, extracts th
 | `tag` | The name of the tag to verify (ignored if `verify` is provided) | No | N/A |
 | `fail-on-verification-error` | Whether to fail the action if verification fails | No | `true` |
 | `certificate-oidc-issuer` | The OIDC issuer to verify against | No | `https://token.actions.githubusercontent.com` |
-| `certificate-identity-regexp` | The identity regexp to verify against | No | `^https://github.com/` |
+| `certificate-identity-regexp` | The identity regexp to verify against | No | `^https://github.com/actionutils/trusted-tag-releaser` |
 
 **Note**: Either `verify` OR both `repository` and `tag` must be provided.
 
