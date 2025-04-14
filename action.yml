@@ -104,7 +104,7 @@ runs:
     - name: Generate verification result
       id: generate-result
       shell: bash
-      run: ${{ github.action_path }}/scripts/generate-result.sh "${{ steps.verify-tag.outputs.verified }}" "${{ steps.parse-inputs.outputs.tag }}" "${{ steps.extract-tag-info.outputs.commit-sha }}" "${{ steps.extract-tag-info.outputs.tagger-name }}" "${{ steps.extract-tag-info.outputs.tagger-email }}" "${{ steps.extract-tag-info.outputs.tagger-timestamp }}" "${{ steps.extract-tag-info.outputs.tag-message }}" "${{ steps.extract-cert-info.outputs.cert-info }}"
+      run: ${{ github.action_path }}/scripts/generate-result.sh "${{ steps.verify-tag.outputs.verified }}" "${{ steps.parse-inputs.outputs.tag }}" "${{ steps.extract-tag-info.outputs.commit-sha }}" "${{ steps.extract-tag-info.outputs.tagger-name }}" "${{ steps.extract-tag-info.outputs.tagger-email }}" "${{ steps.extract-tag-info.outputs.tagger-timestamp }}" "${{ steps.extract-tag-info.outputs.tag-message }}"
 
     - name: Summary
       id: summary

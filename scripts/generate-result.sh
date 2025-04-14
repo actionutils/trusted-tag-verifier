@@ -9,13 +9,12 @@ TAGGER_NAME="$4"
 TAGGER_EMAIL="$5"
 TAGGER_TIMESTAMP="$6"
 TAG_MESSAGE="$7"
-CERT_INFO="$8"
 
 # Get current timestamp in ISO 8601 format
 CURRENT_TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
-# Generate verification result
-VERIFICATION_RESULT=$(cat <<EOF
+# Generate JSON using a here document
+JSON=$(cat << EOF
 {
   "tag": {
     "name": "$TAG",
@@ -35,11 +34,8 @@ VERIFICATION_RESULT=$(cat <<EOF
 EOF
 )
 
-# For multiline outputs
-delimiter="EOF_$(date +%s)"
-echo "verification-result<<$delimiter" >> $GITHUB_OUTPUT
-echo "$VERIFICATION_RESULT" >> $GITHUB_OUTPUT
-echo "$delimiter" >> $GITHUB_OUTPUT
+# Output the JSON as a single line
+echo "verification-result=$(echo "$JSON" | tr -d '\n' | tr -d '  ')" >> $GITHUB_OUTPUT
 
 echo "Verification result generated successfully"
 echo "::endgroup::"
