@@ -35,7 +35,7 @@ jobs:
           echo "Commit: ${{ steps.verify-shorthand.outputs.commit-sha }}"
           echo "Tagger: ${{ steps.verify-shorthand.outputs.tagger-name }} <${{ steps.verify-shorthand.outputs.tagger-email }}>"
           echo "Message: ${{ steps.verify-shorthand.outputs.tag-message }}"
-          
+
           # Display the full JSON
           echo "Verification Result (JSON):"
           echo '${{ steps.verify-shorthand.outputs.verification-result }}' | jq
@@ -56,7 +56,7 @@ jobs:
           echo "Commit: ${{ steps.verify-explicit.outputs.commit-sha }}"
           echo "Tagger: ${{ steps.verify-explicit.outputs.tagger-name }} <${{ steps.verify-explicit.outputs.tagger-email }}>"
           echo "Message: ${{ steps.verify-explicit.outputs.tag-message }}"
-          
+
           # Display the full JSON
           echo "Verification Result (JSON):"
           echo '${{ steps.verify-explicit.outputs.verification-result }}' | jq
