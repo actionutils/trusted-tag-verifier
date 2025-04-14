@@ -106,4 +106,4 @@ runs:
     - name: Summary
       id: summary
       shell: bash
-      run: ${{ github.action_path }}/scripts/generate-summary.sh "${{ steps.verify-tag.outputs.verified }}" "${{ steps.parse-inputs.outputs.tag }}" "${{ steps.parse-inputs.outputs.repository }}" "${{ steps.extract-tag-info.outputs.commit-sha }}" "${{ steps.extract-tag-info.outputs.tagger-name }}" "${{ steps.extract-tag-info.outputs.tagger-email }}"
+      run: ${{ github.action_path }}/scripts/generate-summary.sh "${{ steps.verify-tag.outputs.verified }}" "${{ steps.parse-inputs.outputs.tag }}" "${{ steps.parse-inputs.outputs.repository }}" "${{ steps.extract-tag-info.outputs.commit-sha }}" "${{ steps.extract-tag-info.outputs.tagger-name }}" "${{ steps.extract-tag-info.outputs.tagger-email }}" "${{ inputs.certificate-oidc-issuer }}" "${{ inputs.certificate-identity-regexp }}"
