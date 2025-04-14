@@ -102,37 +102,6 @@ The `verification-result` output provides a JSON object with details about the v
 }
 ```
 
-## How It Works
-
-The action performs the following steps:
-
-1. **Parse and validate inputs**: Processes the input parameters to determine the repository and tag to verify.
-2. **Fetch the tag**: Efficiently fetches only the specific tag to verify, without cloning the entire repository.
-3. **Extract tag information**: Extracts information from the tag, including the commit SHA, tagger name, email, and message.
-4. **Verify tag with Gitsign**: Uses Gitsign to verify the tag signature.
-5. **Extract certificate information**: If the tag is verified, extracts the certificate information.
-6. **Generate verification result**: Creates a JSON object with all the verification details.
-7. **Generate summary**: Creates a summary of the verification results for the GitHub Actions step summary.
-
-## Local Testing
-
-You can test the action locally using the provided test script:
-
-```bash
-./scripts/test-local.sh --verify "owner/repo@v1.0.0"
-```
-
-Or using separate repository and tag parameters:
-
-```bash
-./scripts/test-local.sh --repository "owner/repo" --tag "v1.0.0"
-```
-
-## Requirements
-
-- The action requires a GitHub runner with Git installed
-- The action uses [Gitsign](https://github.com/sigstore/gitsign) for verification, which is automatically set up by the action
-
 ## License
 
 MIT
