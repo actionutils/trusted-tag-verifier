@@ -35,7 +35,7 @@ EOF
 )
 
 # Output the JSON as a single line
-echo "verification-result=$(echo "$JSON" | tr -d '\n' | tr -d '  ')" >> $GITHUB_OUTPUT
+echo "verification-result=$(echo "$JSON" | tr -d '\n')" >> $GITHUB_OUTPUT
 
 echo "Verification result generated successfully"
 echo "::endgroup::"
