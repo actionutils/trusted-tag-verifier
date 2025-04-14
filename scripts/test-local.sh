@@ -61,11 +61,10 @@ echo "Created temporary directory: $REPO_DIR"
 # Clone the repository with shallow clone and specific tag
 echo "Cloning repository with shallow clone and specific tag..."
 git clone --depth 1 --branch "$TAG" "https://github.com/$REPOSITORY.git" "$REPO_DIR"
-cd "$GITHUB_ACTION_PATH"
 
 # Extract tag information
 echo "Extracting tag information..."
-TMP_REPO_DIR="$REPO_DIR" ./scripts/extract-tag-info.sh "$TAG"
+(cd "$REPO_DIR" && "$GITHUB_ACTION_PATH/scripts/extract-tag-info.sh" "$TAG")
 
 # Get extracted tag info
 COMMIT_SHA=$(grep "^commit-sha=" "$GITHUB_OUTPUT" | cut -d= -f2 || echo "")
@@ -76,7 +75,7 @@ TAG_MESSAGE=$(grep -A 1 "^tag-message<<" "$GITHUB_OUTPUT" | tail -n 1 || echo ""
 
 # Verify the tag using gitsign
 echo "Verifying tag..."
-TMP_REPO_DIR="$REPO_DIR" ./scripts/verify-tag.sh "$TAG" "https://token.actions.githubusercontent.com" "^https://github.com/" "false" || true
+(cd "$REPO_DIR" && "$GITHUB_ACTION_PATH/scripts/verify-tag.sh" "$TAG" "https://token.actions.githubusercontent.com" "^https://github.com/" "false") || true
 
 # Get verification result
 VERIFIED=$(grep "^verified=" "$GITHUB_OUTPUT" | cut -d= -f2 || echo "false")
@@ -84,20 +83,15 @@ VERIFIED=$(grep "^verified=" "$GITHUB_OUTPUT" | cut -d= -f2 || echo "false")
 if [[ "$VERIFIED" == "true" ]]; then
   # Extract certificate information
   echo "Extracting certificate information..."
-  TMP_REPO_DIR="$REPO_DIR" ./scripts/extract-cert-info.sh "$TAG"
-  
-  # Get certificate info
-  CERT_INFO=$(grep -A 100 "^cert-info<<" "$GITHUB_OUTPUT" | tail -n +2 | sed -n '/^EOF_/q;p' || echo "")
-else
-  CERT_INFO=""
+  (cd "$REPO_DIR" && "$GITHUB_ACTION_PATH/scripts/extract-cert-info.sh" "$TAG")
 fi
 
 # Generate verification result
 echo "Generating verification result..."
-./scripts/generate-result.sh "$VERIFIED" "$TAG" "$COMMIT_SHA" "$TAGGER_NAME" "$TAGGER_EMAIL" "$TAGGER_TIMESTAMP" "$TAG_MESSAGE" "$CERT_INFO"
+./scripts/generate-result.sh "$VERIFIED" "$TAG" "$COMMIT_SHA" "$TAGGER_NAME" "$TAGGER_EMAIL" "$TAGGER_TIMESTAMP" "$TAG_MESSAGE"
 
 # Get verification result
-VERIFICATION_RESULT=$(grep -A 100 "^verification-result<<" "$GITHUB_OUTPUT" | tail -n +2 | sed -n '/^EOF_/q;p' || echo "{}")
+VERIFICATION_RESULT=$(grep -A 100 "^verification-result=" "$GITHUB_OUTPUT" | cut -d= -f2- || echo "{}")
 
 # Generate summary
 echo "Generating summary..."

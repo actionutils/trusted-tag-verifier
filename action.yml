@@ -82,24 +82,21 @@ runs:
     - name: Extract tag information
       id: extract-tag-info
       shell: bash
-      run: |
-        TMP_REPO_DIR="${{ github.workspace }}/__tag_verifier_target__" \
-        ${{ github.action_path }}/scripts/extract-tag-info.sh "${{ steps.parse-inputs.outputs.tag }}"
+      working-directory: __tag_verifier_target__
+      run: ${{ github.action_path }}/scripts/extract-tag-info.sh "${{ steps.parse-inputs.outputs.tag }}"
 
     - name: Verify tag with Gitsign
       id: verify-tag
       shell: bash
-      run: |
-        TMP_REPO_DIR="${{ github.workspace }}/__tag_verifier_target__" \
-        ${{ github.action_path }}/scripts/verify-tag.sh "${{ steps.parse-inputs.outputs.tag }}" "${{ inputs.certificate-oidc-issuer }}" "${{ inputs.certificate-identity-regexp }}" "${{ inputs.fail-on-verification-error }}"
+      working-directory: __tag_verifier_target__
+      run: ${{ github.action_path }}/scripts/verify-tag.sh "${{ steps.parse-inputs.outputs.tag }}" "${{ inputs.certificate-oidc-issuer }}" "${{ inputs.certificate-identity-regexp }}" "${{ inputs.fail-on-verification-error }}"
 
     - name: Extract certificate information
       id: extract-cert-info
       if: steps.verify-tag.outputs.verified == 'true'
       shell: bash
-      run: |
-        TMP_REPO_DIR="${{ github.workspace }}/__tag_verifier_target__" \
-        ${{ github.action_path }}/scripts/extract-cert-info.sh "${{ steps.parse-inputs.outputs.tag }}"
+      working-directory: __tag_verifier_target__
+      run: ${{ github.action_path }}/scripts/extract-cert-info.sh "${{ steps.parse-inputs.outputs.tag }}"
 
     - name: Generate verification result
       id: generate-result

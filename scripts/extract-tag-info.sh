@@ -2,11 +2,9 @@
 set -e
 
 echo "::group::Extracting tag information"
-# Use the temporary directory passed from the calling script or action.yml
+# If TMP_REPO_DIR is set, change to that directory
 if [[ -n "$TMP_REPO_DIR" ]]; then
   cd "$TMP_REPO_DIR"
-else
-  cd target-repo
 fi
 
 TAG="$1"
