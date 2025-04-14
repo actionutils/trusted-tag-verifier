@@ -98,8 +98,8 @@ echo "Generating summary..."
 ./scripts/generate-summary.sh "$VERIFIED" "$TAG" "$REPOSITORY" "$COMMIT_SHA" "$TAGGER_NAME" "$TAGGER_EMAIL"
 
 # Display verification result
-echo "Verification Result:"
-echo "$VERIFICATION_RESULT" | jq || echo "$VERIFICATION_RESULT"
+echo "Verification Result (JSON):"
+echo "$VERIFICATION_RESULT" | jq
 
 # Display summary
 echo "Summary:"
@@ -115,6 +115,16 @@ VERIFIED=$(grep "^verified=" "$GITHUB_OUTPUT" | cut -d= -f2 || echo "false")
 
 if [[ "$VERIFIED" == "false" ]]; then
   echo "✅ Test passed: Invalid certificate issuer verification returned false as expected"
+  
+  # Generate verification result for invalid issuer
+  ./scripts/generate-result.sh "$VERIFIED" "$TAG" "$COMMIT_SHA" "$TAGGER_NAME" "$TAGGER_EMAIL" "$TAGGER_TIMESTAMP" "$TAG_MESSAGE"
+  
+  # Get verification result
+  VERIFICATION_RESULT=$(grep -A 100 "^verification-result=" "$GITHUB_OUTPUT" | cut -d= -f2- || echo "{}")
+  
+  # Display verification result
+  echo "Verification Result for Invalid Issuer (JSON):"
+  echo "$VERIFICATION_RESULT" | jq
 else
   echo "❌ Test failed: Invalid certificate issuer verification did not return false"
   exit 1
