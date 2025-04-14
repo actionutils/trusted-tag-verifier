@@ -1,0 +1,109 @@
+name: 'Trusted Tag Verifier'
+description: 'Verify tags signed with Gitsign and display their contents'
+branding:
+  icon: 'shield'
+  color: 'green'
+
+inputs:
+  verify:
+    description: 'The repository and tag to verify in the format <owner>/<repo>@<version>'
+    required: false
+  repository:
+    description: 'The repository containing the tag to verify (ignored if verify is provided)'
+    required: false
+  tag:
+    description: 'The name of the tag to verify (ignored if verify is provided)'
+    required: false
+  fail-on-verification-error:
+    description: 'Whether to fail the action if verification fails'
+    required: false
+    default: 'true'
+  certificate-oidc-issuer:
+    description: 'The OIDC issuer to verify against'
+    required: false
+    default: 'https://token.actions.githubusercontent.com'
+  certificate-identity-regexp:
+    description: 'The identity regexp to verify against'
+    required: false
+    default: '^https://github.com/'
+
+outputs:
+  verified:
+    description: 'Whether the tag was successfully verified (true/false)'
+    value: ${{ steps.verify-tag.outputs.verified }}
+  repository:
+    description: 'The repository that was verified (e.g., owner/repo)'
+    value: ${{ steps.parse-inputs.outputs.repository }}
+  tag-name:
+    description: 'The name of the verified tag'
+    value: ${{ steps.parse-inputs.outputs.tag }}
+  commit-sha:
+    description: 'The SHA of the commit that the tag points to'
+    value: ${{ steps.extract-tag-info.outputs.commit-sha }}
+  tagger-name:
+    description: 'The name of the tagger'
+    value: ${{ steps.extract-tag-info.outputs.tagger-name }}
+  tagger-email:
+    description: 'The email of the tagger'
+    value: ${{ steps.extract-tag-info.outputs.tagger-email }}
+  tag-message:
+    description: 'The message associated with the tag'
+    value: ${{ steps.extract-tag-info.outputs.tag-message }}
+  verification-result:
+    description: 'The complete verification result as a JSON string'
+    value: ${{ steps.generate-result.outputs.verification-result }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Gitsign
+      id: setup-gitsign
+      uses: chainguard-dev/actions/setup-gitsign@1054a7f14edea88ef30dc2732c0a5e8d05db4ecc
+
+    - name: Parse inputs
+      id: parse-inputs
+      shell: bash
+      run: ${{ github.action_path }}/scripts/parse-inputs.sh "${{ inputs.verify }}" "${{ inputs.repository }}" "${{ inputs.tag }}"
+
+    - name: Validate inputs
+      id: validate-inputs
+      shell: bash
+      run: ${{ github.action_path }}/scripts/validate-inputs.sh "${{ steps.parse-inputs.outputs.repository }}" "${{ steps.parse-inputs.outputs.tag }}"
+
+    - name: Checkout repository
+      id: checkout
+      uses: actions/checkout@v4
+      with:
+        repository: ${{ steps.parse-inputs.outputs.repository }}
+        ref: refs/tags/${{ steps.parse-inputs.outputs.tag }}
+        fetch-depth: 1
+        path: __tag_verifier_target__
+
+    - name: Extract tag information
+      id: extract-tag-info
+      shell: bash
+      working-directory: __tag_verifier_target__
+      run: ${{ github.action_path }}/scripts/extract-tag-info.sh "${{ steps.parse-inputs.outputs.tag }}"
+
+    - name: Verify tag with Gitsign
+      id: verify-tag
+      shell: bash
+      working-directory: __tag_verifier_target__
+      run: ${{ github.action_path }}/scripts/verify-tag.sh "${{ steps.parse-inputs.outputs.tag }}" "${{ inputs.certificate-oidc-issuer }}" "${{ inputs.certificate-identity-regexp }}" "${{ inputs.fail-on-verification-error }}"
+
+    - name: Extract certificate information
+      id: extract-cert-info
+      if: steps.verify-tag.outputs.verified == 'true'
+      shell: bash
+      working-directory: __tag_verifier_target__
+      run: ${{ github.action_path }}/scripts/extract-cert-info.sh "${{ steps.parse-inputs.outputs.tag }}"
+
+    - name: Generate verification result
+      id: generate-result
+      shell: bash
+      run: ${{ github.action_path }}/scripts/generate-result.sh "${{ steps.verify-tag.outputs.verified }}" "${{ steps.parse-inputs.outputs.tag }}" "${{ steps.extract-tag-info.outputs.commit-sha }}" "${{ steps.extract-tag-info.outputs.tagger-name }}" "${{ steps.extract-tag-info.outputs.tagger-email }}" "${{ steps.extract-tag-info.outputs.tagger-timestamp }}" "${{ steps.extract-tag-info.outputs.tag-message }}"
+
+    - name: Summary
+      id: summary
+      shell: bash
+      run: ${{ github.action_path }}/scripts/generate-summary.sh "${{ steps.verify-tag.outputs.verified }}" "${{ steps.parse-inputs.outputs.tag }}" "${{ steps.parse-inputs.outputs.repository }}" "${{ steps.extract-tag-info.outputs.commit-sha }}" "${{ steps.extract-tag-info.outputs.tagger-name }}" "${{ steps.extract-tag-info.outputs.tagger-email }}"
