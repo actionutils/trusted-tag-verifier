@@ -16,14 +16,14 @@ echo "Verifying tag $TAG..."
 
 # Check if gitsign is installed
 if ! command -v gitsign &> /dev/null; then
-  echo "Warning: gitsign command not found. Skipping verification."
-  echo "verified=false" >> $GITHUB_OUTPUT
-  if [[ "$FAIL_ON_ERROR" == "true" ]]; then
-    echo "::error::gitsign command not found"
-    exit 1
-  fi
-  echo "::endgroup::"
-  exit 0
+  echo "::error::gitsign command not found"
+  exit 1
+fi
+
+# Check if the tag exists
+if ! git show-ref --tags "$TAG" > /dev/null 2>&1; then
+  echo "::error::Tag $TAG not found"
+  exit 1
 fi
 
 # Try to verify the tag

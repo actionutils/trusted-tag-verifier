@@ -18,17 +18,17 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
+
       - name: Verify Tag (Shorthand)
         id: verify-shorthand
         uses: ./
         with:
           verify: 'actionutils/trusted-tag-releaser@v0.0.30'
-      
+
       - name: Display Verification Results (Shorthand)
         run: |
           echo "Verified: ${{ steps.verify-shorthand.outputs.verified }}"
@@ -47,7 +47,7 @@ jobs:
           echo "Tagger timestamp: ${{ fromJSON(steps.verify-shorthand.outputs.verification-result).tag.tagger.timestamp }}"
           echo "Verified: ${{ fromJSON(steps.verify-shorthand.outputs.verification-result).signature.verified }}"
           echo "Signature timestamp: ${{ fromJSON(steps.verify-shorthand.outputs.verification-result).signature.timestamp }}"
-      
+
       - name: Verify Tag (Explicit Parameters)
         id: verify-explicit
         uses: ./
@@ -55,7 +55,7 @@ jobs:
           repository: 'actionutils/trusted-tag-releaser'
           tag: 'v0.0.30'
           fail-on-verification-error: 'false'
-      
+
       - name: Display Verification Results (Explicit Parameters)
         run: |
           echo "Verified: ${{ steps.verify-explicit.outputs.verified }}"
@@ -74,20 +74,57 @@ jobs:
           echo "Tagger timestamp: ${{ fromJSON(steps.verify-explicit.outputs.verification-result).tag.tagger.timestamp }}"
           echo "Verified: ${{ fromJSON(steps.verify-explicit.outputs.verification-result).signature.verified }}"
           echo "Signature timestamp: ${{ fromJSON(steps.verify-explicit.outputs.verification-result).signature.timestamp }}"
-      
-      - name: Test Invalid Tag (Should Not Fail)
-        id: verify-invalid
+
+      - name: Test Invalid Tag (Should Fail)
+        id: verify-invalid-tag
         uses: ./
         with:
           verify: 'actionutils/trusted-tag-releaser@non-existent-tag'
           fail-on-verification-error: 'false'
         continue-on-error: true
-      
+
       - name: Check Invalid Tag Result
         run: |
-          if [[ "${{ steps.verify-invalid.outcome }}" == "failure" ]]; then
+          if [[ "${{ steps.verify-invalid-tag.outcome }}" == "failure" ]]; then
             echo "✅ Test passed: Invalid tag verification failed as expected"
           else
             echo "❌ Test failed: Invalid tag verification did not fail"
+            exit 1
+          fi
+
+      - name: Test Invalid Certificate Issuer (Should Not Fail)
+        id: verify-invalid-issuer
+        uses: ./
+        with:
+          repository: 'actionutils/trusted-tag-releaser'
+          tag: 'v0.0.30'
+          certificate-oidc-issuer: 'https://invalid-issuer.example.com'
+          fail-on-verification-error: 'false'
+
+      - name: Check Invalid Certificate Issuer Result
+        run: |
+          if [[ "${{ steps.verify-invalid-issuer.outputs.verified }}" == "false" ]]; then
+            echo "✅ Test passed: Invalid certificate issuer verification returned false as expected"
+          else
+            echo "❌ Test failed: Invalid certificate issuer verification did not return false"
+            exit 1
+          fi
+
+      - name: Test Invalid Certificate Issuer (Should Fail)
+        id: verify-invalid-issuer-fail
+        uses: ./
+        with:
+          repository: 'actionutils/trusted-tag-releaser'
+          tag: 'v0.0.30'
+          certificate-oidc-issuer: 'https://invalid-issuer.example.com'
+          fail-on-verification-error: 'true'
+        continue-on-error: true
+
+      - name: Check Invalid Certificate Issuer Fail Result
+        run: |
+          if [[ "${{ steps.verify-invalid-issuer-fail.outcome }}" == "failure" ]]; then
+            echo "✅ Test passed: Invalid certificate issuer verification failed as expected"
+          else
+            echo "❌ Test failed: Invalid certificate issuer verification did not fail"
             exit 1
           fi

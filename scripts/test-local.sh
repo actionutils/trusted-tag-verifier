@@ -105,6 +105,31 @@ echo "$VERIFICATION_RESULT" | jq || echo "$VERIFICATION_RESULT"
 echo "Summary:"
 cat "$GITHUB_STEP_SUMMARY"
 
+# Test with invalid certificate issuer
+echo "Testing with invalid certificate issuer..."
+export GITHUB_OUTPUT=$(mktemp)
+(cd "$REPO_DIR" && "$GITHUB_ACTION_PATH/scripts/verify-tag.sh" "$TAG" "https://invalid-issuer.example.com" "^https://github.com/" "false") || true
+
+# Get verification result
+VERIFIED=$(grep "^verified=" "$GITHUB_OUTPUT" | cut -d= -f2 || echo "false")
+
+if [[ "$VERIFIED" == "false" ]]; then
+  echo "✅ Test passed: Invalid certificate issuer verification returned false as expected"
+else
+  echo "❌ Test failed: Invalid certificate issuer verification did not return false"
+  exit 1
+fi
+
+# Test with invalid certificate issuer and fail-on-verification-error=true
+echo "Testing with invalid certificate issuer and fail-on-verification-error=true..."
+export GITHUB_OUTPUT=$(mktemp)
+if (cd "$REPO_DIR" && "$GITHUB_ACTION_PATH/scripts/verify-tag.sh" "$TAG" "https://invalid-issuer.example.com" "^https://github.com/" "true"); then
+  echo "❌ Test failed: Invalid certificate issuer verification did not fail"
+  exit 1
+else
+  echo "✅ Test passed: Invalid certificate issuer verification failed as expected"
+fi
+
 # Clean up
 echo "Cleaning up temporary directory: $REPO_DIR"
 rm -rf "$REPO_DIR"
