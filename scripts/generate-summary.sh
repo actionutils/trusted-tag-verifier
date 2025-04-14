@@ -38,8 +38,8 @@ echo "| Repository | [$REPOSITORY]($REPO_URL) |" >> $GITHUB_STEP_SUMMARY
 echo "| Tag | [$TAG]($TAG_URL) |" >> $GITHUB_STEP_SUMMARY
 echo "| Commit | [$COMMIT_SHA]($COMMIT_URL) |" >> $GITHUB_STEP_SUMMARY
 echo "| Tagger | $TAGGER_NAME <$TAGGER_EMAIL> |" >> $GITHUB_STEP_SUMMARY
-echo "| Expected Certificate OIDC Issuer | $CERTIFICATE_OIDC_ISSUER |" >> $GITHUB_STEP_SUMMARY
-echo "| Expected Certificate Identity Regexp | $CERTIFICATE_IDENTITY_REGEXP |" >> $GITHUB_STEP_SUMMARY
+echo "| Expected Certificate OIDC Issuer | \`$CERTIFICATE_OIDC_ISSUER\` |" >> $GITHUB_STEP_SUMMARY
+echo "| Expected Certificate Identity Regexp | \`$CERTIFICATE_IDENTITY_REGEXP\` |" >> $GITHUB_STEP_SUMMARY
 
 if [[ "$VERIFIED" == "true" ]]; then
   echo "| Verification | ✅ SUCCESS |" >> $GITHUB_STEP_SUMMARY
