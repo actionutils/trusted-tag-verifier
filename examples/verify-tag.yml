@@ -1,0 +1,45 @@
+name: Verify Tag
+
+on:
+  workflow_dispatch:
+    inputs:
+      repository:
+        description: 'Repository to verify (owner/repo)'
+        required: true
+        type: string
+      tag:
+        description: 'Tag to verify'
+        required: true
+        type: string
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Verify Tag
+        id: verify
+        uses: actionutils/trusted-tag-verifier@v1
+        with:
+          repository: ${{ github.event.inputs.repository }}
+          tag: ${{ github.event.inputs.tag }}
+      
+      - name: Display Verification Results
+        run: |
+          echo "Verification Results:"
+          echo "===================="
+          echo "Verified: ${{ steps.verify.outputs.verified }}"
+          echo "Repository: ${{ steps.verify.outputs.repository }}"
+          echo "Tag: ${{ steps.verify.outputs.tag-name }}"
+          echo "Commit: ${{ steps.verify.outputs.commit-sha }}"
+          echo "Tagger: ${{ steps.verify.outputs.tagger-name }} <${{ steps.verify.outputs.tagger-email }}>"
+          echo "Message: ${{ steps.verify.outputs.tag-message }}"
+          
+          echo "===================="
+          echo "Full Verification Result:"
+          echo '${{ steps.verify.outputs.verification-result }}' | jq

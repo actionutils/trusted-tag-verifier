@@ -1,0 +1,81 @@
+name: Test Trusted Tag Verifier
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+
+jobs:
+  test-verify-tag:
+    name: Test Tag Verification
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Verify Tag (Shorthand)
+        id: verify-shorthand
+        uses: ./
+        with:
+          verify: 'actionutils/trusted-tag-releaser@v0.0.30'
+      
+      - name: Display Verification Results (Shorthand)
+        run: |
+          echo "Verified: ${{ steps.verify-shorthand.outputs.verified }}"
+          echo "Repository: ${{ steps.verify-shorthand.outputs.repository }}"
+          echo "Tag: ${{ steps.verify-shorthand.outputs.tag-name }}"
+          echo "Commit: ${{ steps.verify-shorthand.outputs.commit-sha }}"
+          echo "Tagger: ${{ steps.verify-shorthand.outputs.tagger-name }} <${{ steps.verify-shorthand.outputs.tagger-email }}>"
+          echo "Message: ${{ steps.verify-shorthand.outputs.tag-message }}"
+          
+          # Access specific fields from the verification result
+          echo "Verification Result:"
+          echo '${{ steps.verify-shorthand.outputs.verification-result }}' | jq
+      
+      - name: Verify Tag (Explicit Parameters)
+        id: verify-explicit
+        uses: ./
+        with:
+          repository: 'actionutils/trusted-tag-releaser'
+          tag: 'v0.0.30'
+          fail-on-verification-error: 'false'
+      
+      - name: Display Verification Results (Explicit Parameters)
+        run: |
+          echo "Verified: ${{ steps.verify-explicit.outputs.verified }}"
+          echo "Repository: ${{ steps.verify-explicit.outputs.repository }}"
+          echo "Tag: ${{ steps.verify-explicit.outputs.tag-name }}"
+          echo "Commit: ${{ steps.verify-explicit.outputs.commit-sha }}"
+          echo "Tagger: ${{ steps.verify-explicit.outputs.tagger-name }} <${{ steps.verify-explicit.outputs.tagger-email }}>"
+          echo "Message: ${{ steps.verify-explicit.outputs.tag-message }}"
+          
+          # Access specific fields from the verification result
+          echo "Verification Result:"
+          echo '${{ steps.verify-explicit.outputs.verification-result }}' | jq
+      
+      - name: Test Invalid Tag (Should Not Fail)
+        id: verify-invalid
+        uses: ./
+        with:
+          verify: 'actionutils/trusted-tag-releaser@non-existent-tag'
+          fail-on-verification-error: 'false'
+        continue-on-error: true
+      
+      - name: Check Invalid Tag Result
+        run: |
+          if [[ "${{ steps.verify-invalid.outcome }}" == "failure" ]]; then
+            echo "✅ Test passed: Invalid tag verification failed as expected"
+          else
+            echo "❌ Test failed: Invalid tag verification did not fail"
+            exit 1
+          fi
