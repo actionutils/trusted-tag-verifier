@@ -22,6 +22,8 @@ else
   CERT_SUMMARY_ARG="--argjson cert_summary {}"
 fi
 
+echo $CERT_SUMMARY_ARG
+
 JSON=$(jq -n \
   --arg tag "$TAG" \
   --arg commit "$COMMIT_SHA" \
