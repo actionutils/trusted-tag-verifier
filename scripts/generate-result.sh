@@ -13,26 +13,43 @@ TAG_MESSAGE="$7"
 # Get current timestamp in ISO 8601 format
 CURRENT_TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
-# Generate JSON using a here document
-JSON=$(cat << EOF
-{
-  "tag": {
-    "name": "$TAG",
-    "commit": "$COMMIT_SHA",
-    "tagger": {
-      "name": "$TAGGER_NAME",
-      "email": "$TAGGER_EMAIL",
-      "timestamp": "$TAGGER_TIMESTAMP"
+echo '===CERTIFICATE_SUMMARY_JSON==='
+echo "${CERTIFICATE_SUMMARY_JSON}"
+echo '===END OF CERTIFICATE_SUMMARY_JSON==='
+
+# Generate JSON using jq to properly escape strings
+# Set default value if CERTIFICATE_SUMMARY_JSON is empty
+if [[ -z "$CERTIFICATE_SUMMARY_JSON" ]]; then
+  CERTIFICATE_SUMMARY_JSON="{}"
+fi
+
+JSON=$(jq -n \
+  --arg tag "$TAG" \
+  --arg commit "$COMMIT_SHA" \
+  --arg tagger_name "$TAGGER_NAME" \
+  --arg tagger_email "$TAGGER_EMAIL" \
+  --arg tagger_timestamp "$TAGGER_TIMESTAMP" \
+  --arg tag_message "$TAG_MESSAGE" \
+  --argjson verified "$VERIFIED" \
+  --arg current_timestamp "$CURRENT_TIMESTAMP" \
+  --argjson cert_summary "$CERTIFICATE_SUMMARY_JSON" \
+  '{
+    tag: {
+      name: $tag,
+      commit: $commit,
+      tagger: {
+        name: $tagger_name,
+        email: $tagger_email,
+        timestamp: $tagger_timestamp
+      },
+      message: $tag_message
     },
-    "message": "$TAG_MESSAGE"
-  },
-  "signature": {
-    "verified": $VERIFIED,
-    "timestamp": "$CURRENT_TIMESTAMP"
-  }
-}
-EOF
-)
+    signature: {
+      verified: $verified,
+      timestamp: $current_timestamp
+    },
+    cert_summary: $cert_summary
+  }')
 
 # Output the JSON as a single line
 echo "verification-result=$(echo "$JSON" | tr -d '\n')" >> $GITHUB_OUTPUT

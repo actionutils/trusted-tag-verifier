@@ -22,6 +22,7 @@ echo "Commit: $COMMIT_SHA ($COMMIT_URL)"
 echo "Tagger: $TAGGER_NAME <$TAGGER_EMAIL>"
 echo "Expected Certificate OIDC Issuer: $CERTIFICATE_OIDC_ISSUER"
 echo "Expected Certificate Identity Regexp: $CERTIFICATE_IDENTITY_REGEXP"
+echo "Certification Summary JSON: $CERTIFICATE_SUMMARY_JSON"
 
 if [[ "$VERIFIED" == "true" ]]; then
   echo "✅ Tag verification: SUCCESS"
@@ -30,7 +31,7 @@ else
 fi
 
 # Add to GitHub step summary
-echo "# Tag Verification Results" >> $GITHUB_STEP_SUMMARY
+echo "## Tag Verification Results" >> $GITHUB_STEP_SUMMARY
 echo "" >> $GITHUB_STEP_SUMMARY
 echo "| Property | Value |" >> $GITHUB_STEP_SUMMARY
 echo "| --- | --- |" >> $GITHUB_STEP_SUMMARY
@@ -40,6 +41,11 @@ echo "| Commit | [$COMMIT_SHA]($COMMIT_URL) |" >> $GITHUB_STEP_SUMMARY
 echo "| Tagger | $TAGGER_NAME <$TAGGER_EMAIL> |" >> $GITHUB_STEP_SUMMARY
 echo "| Expected Certificate OIDC Issuer | \`$CERTIFICATE_OIDC_ISSUER\` |" >> $GITHUB_STEP_SUMMARY
 echo "| Expected Certificate Identity Regexp | \`$CERTIFICATE_IDENTITY_REGEXP\` |" >> $GITHUB_STEP_SUMMARY
+# Parse and include certificate summary JSON if it's not empty
+if [[ -n "$CERTIFICATE_SUMMARY_JSON" ]] && [[ "$CERTIFICATE_SUMMARY_JSON" != "{}" ]]; then
+  # Parse JSON and add each key-value pair to the table
+  echo "$CERTIFICATE_SUMMARY_JSON" | jq -r 'to_entries[] | "| \(.key) | \(.value) |"' >> $GITHUB_STEP_SUMMARY
+fi
 
 if [[ "$VERIFIED" == "true" ]]; then
   echo "| Verification | ✅ SUCCESS |" >> $GITHUB_STEP_SUMMARY
