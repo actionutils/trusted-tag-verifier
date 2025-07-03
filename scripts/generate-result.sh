@@ -9,7 +9,6 @@ TAGGER_NAME="$4"
 TAGGER_EMAIL="$5"
 TAGGER_TIMESTAMP="$6"
 TAG_MESSAGE="$7"
-CERT_JSON="$8"
 
 # Get current timestamp in ISO 8601 format
 CURRENT_TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
@@ -31,7 +30,7 @@ JSON=$(cat << EOF
     "verified": $VERIFIED,
     "timestamp": "$CURRENT_TIMESTAMP"
   },
-  "cert_summary": $CERT_JSON
+  "cert_summary": $CERTIFICATE_SUMMARY_JSON
 }
 EOF
 )

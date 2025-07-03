@@ -106,6 +106,8 @@ runs:
     - name: Generate verification result
       id: generate-result
       shell: bash
+      env:
+        CERTIFICATE_SUMMARY_JSON: ${{ steps.extract-cert-info.outputs.cert-json }}
       run: |
         ${{ github.action_path }}/scripts/generate-result.sh \
           "${{ steps.verify-tag.outputs.verified }}" \
@@ -114,12 +116,13 @@ runs:
           "${{ steps.extract-tag-info.outputs.tagger-name }}" \
           "${{ steps.extract-tag-info.outputs.tagger-email }}" \
           "${{ steps.extract-tag-info.outputs.tagger-timestamp }}" \
-          "${{ steps.extract-cert-info.outputs.cert-json }}" \
           "${{ steps.extract-tag-info.outputs.tag-message }}" \
 
     - name: Summary
       id: summary
       shell: bash
+      env:
+        CERTIFICATE_SUMMARY_JSON: ${{ steps.extract-cert-info.outputs.cert-json }}
       run: |
         ${{ github.action_path }}/scripts/generate-summary.sh \
           "${{ steps.verify-tag.outputs.verified }}" \
@@ -129,5 +132,4 @@ runs:
           "${{ steps.extract-tag-info.outputs.tagger-name }}" \
           "${{ steps.extract-tag-info.outputs.tagger-email }}" \
           "${{ inputs.certificate-oidc-issuer }}" \
-          "${{ inputs.certificate-identity-regexp }}" \
-          "${{ steps.extract-cert-info.outputs.cert-json }}"
+          "${{ inputs.certificate-identity-regexp }}"
