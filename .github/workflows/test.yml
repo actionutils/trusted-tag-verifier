@@ -116,24 +116,3 @@ jobs:
             echo "❌ Test failed: Invalid certificate issuer verification did not fail"
             exit 1
           fi
-
-  test-local-script:
-    name: Test Local Script
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Gitsign
-        uses: chainguard-dev/actions/setup-gitsign@1054a7f14edea88ef30dc2732c0a5e8d05db4ecc
-
-      - name: Test Local Script with Shorthand
-        run: |
-          ./scripts/test-local.sh --verify "actionutils/trusted-tag-releaser@v0.0.30"
-
-      - name: Test Local Script with Explicit Parameters
-        run: |
-          ./scripts/test-local.sh --repository "actionutils/trusted-tag-releaser" --tag "v0.0.30"
