@@ -14,7 +14,6 @@ TAG_MESSAGE="$7"
 CURRENT_TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
 # Generate JSON using jq to properly escape strings
-# DEBUG: --argjson cert_summary "${CERTIFICATE_SUMMARY_JSON:-{}}" \
 JSON=$(jq -n \
   --arg tag "$TAG" \
   --arg commit "$COMMIT_SHA" \
@@ -24,7 +23,7 @@ JSON=$(jq -n \
   --arg tag_message "$TAG_MESSAGE" \
   --argjson verified "$VERIFIED" \
   --arg current_timestamp "$CURRENT_TIMESTAMP" \
-  --argjson cert_summary '{}' \
+  --argjson cert_summary "${CERTIFICATE_SUMMARY_JSON:-{}}" \
   '{
     tag: {
       name: $tag,

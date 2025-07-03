@@ -107,7 +107,7 @@ runs:
       id: generate-result
       shell: bash
       env:
-        CERTIFICATE_SUMMARY_JSON: ${{ steps.extract-cert-info.outputs.cert-json }}
+        CERTIFICATE_SUMMARY_JSON: '${{ steps.extract-cert-info.outputs.cert-json }}'
       run: |
         ${{ github.action_path }}/scripts/generate-result.sh \
           "${{ steps.verify-tag.outputs.verified }}" \
@@ -122,7 +122,7 @@ runs:
       id: summary
       shell: bash
       env:
-        CERTIFICATE_SUMMARY_JSON: ${{ steps.extract-cert-info.outputs.cert-json }}
+        CERTIFICATE_SUMMARY_JSON: '${{ steps.extract-cert-info.outputs.cert-json }}'
       run: |
         ${{ github.action_path }}/scripts/generate-summary.sh \
           "${{ steps.verify-tag.outputs.verified }}" \
