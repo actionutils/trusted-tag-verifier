@@ -60,6 +60,11 @@ runs:
       id: setup-gitsign
       uses: chainguard-dev/actions/setup-gitsign@1054a7f14edea88ef30dc2732c0a5e8d05db4ecc
 
+    - uses: binary-install/setup-x@641763050d33725178ab052a240cb72ebaa104fe
+      with:
+        script_url: https://github.com/actionutils/sigspy/releases/download/v1.0.0/install.sh
+        gh_attestations_verify_flags: --repo=actionutils/sigspy --signer-repo=actionutils/trusted-go-releaser
+
     - name: Parse inputs
       id: parse-inputs
       shell: bash
@@ -101,9 +106,28 @@ runs:
     - name: Generate verification result
       id: generate-result
       shell: bash
-      run: ${{ github.action_path }}/scripts/generate-result.sh "${{ steps.verify-tag.outputs.verified }}" "${{ steps.parse-inputs.outputs.tag }}" "${{ steps.extract-tag-info.outputs.commit-sha }}" "${{ steps.extract-tag-info.outputs.tagger-name }}" "${{ steps.extract-tag-info.outputs.tagger-email }}" "${{ steps.extract-tag-info.outputs.tagger-timestamp }}" "${{ steps.extract-tag-info.outputs.tag-message }}"
+      run: |
+        ${{ github.action_path }}/scripts/generate-result.sh \
+          "${{ steps.verify-tag.outputs.verified }}" \
+          "${{ steps.parse-inputs.outputs.tag }}" \
+          "${{ steps.extract-tag-info.outputs.commit-sha }}" \
+          "${{ steps.extract-tag-info.outputs.tagger-name }}" \
+          "${{ steps.extract-tag-info.outputs.tagger-email }}" \
+          "${{ steps.extract-tag-info.outputs.tagger-timestamp }}" \
+          "${{ steps.extract-cert-info.outputs.cert-json }}" \
+          "${{ steps.extract-tag-info.outputs.tag-message }}" \
 
     - name: Summary
       id: summary
       shell: bash
-      run: ${{ github.action_path }}/scripts/generate-summary.sh "${{ steps.verify-tag.outputs.verified }}" "${{ steps.parse-inputs.outputs.tag }}" "${{ steps.parse-inputs.outputs.repository }}" "${{ steps.extract-tag-info.outputs.commit-sha }}" "${{ steps.extract-tag-info.outputs.tagger-name }}" "${{ steps.extract-tag-info.outputs.tagger-email }}" "${{ inputs.certificate-oidc-issuer }}" "${{ inputs.certificate-identity-regexp }}"
+      run: |
+        ${{ github.action_path }}/scripts/generate-summary.sh \
+          "${{ steps.verify-tag.outputs.verified }}" \
+          "${{ steps.parse-inputs.outputs.tag }}" \
+          "${{ steps.parse-inputs.outputs.repository }}" \
+          "${{ steps.extract-tag-info.outputs.commit-sha }}" \
+          "${{ steps.extract-tag-info.outputs.tagger-name }}" \
+          "${{ steps.extract-tag-info.outputs.tagger-email }}" \
+          "${{ inputs.certificate-oidc-issuer }}" \
+          "${{ inputs.certificate-identity-regexp }}" \
+          "${{ steps.extract-cert-info.outputs.cert-json }}"
