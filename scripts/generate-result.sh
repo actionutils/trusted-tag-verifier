@@ -18,6 +18,11 @@ echo "${CERTIFICATE_SUMMARY_JSON}"
 echo '===END OF CERTIFICATE_SUMMARY_JSON==='
 
 # Generate JSON using jq to properly escape strings
+# Set default value if CERTIFICATE_SUMMARY_JSON is empty
+if [[ -z "$CERTIFICATE_SUMMARY_JSON" ]]; then
+  CERTIFICATE_SUMMARY_JSON="{}"
+fi
+
 JSON=$(jq -n \
   --arg tag "$TAG" \
   --arg commit "$COMMIT_SHA" \
@@ -27,7 +32,7 @@ JSON=$(jq -n \
   --arg tag_message "$TAG_MESSAGE" \
   --argjson verified "$VERIFIED" \
   --arg current_timestamp "$CURRENT_TIMESTAMP" \
-  --argjson cert_summary "${CERTIFICATE_SUMMARY_JSON:-{}}" \
+  --argjson cert_summary "$CERTIFICATE_SUMMARY_JSON" \
   '{
     tag: {
       name: $tag,
