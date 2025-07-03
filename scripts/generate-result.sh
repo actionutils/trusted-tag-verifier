@@ -13,6 +13,10 @@ TAG_MESSAGE="$7"
 # Get current timestamp in ISO 8601 format
 CURRENT_TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
+echo '===CERTIFICATE_SUMMARY_JSON==='
+echo "${CERTIFICATE_SUMMARY_JSON}"
+echo '===END OF CERTIFICATE_SUMMARY_JSON==='
+
 # Generate JSON using jq to properly escape strings
 JSON=$(jq -n \
   --arg tag "$TAG" \
