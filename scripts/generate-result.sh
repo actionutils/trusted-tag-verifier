@@ -30,7 +30,7 @@ JSON=$(cat << EOF
     "verified": $VERIFIED,
     "timestamp": "$CURRENT_TIMESTAMP"
   },
-  "cert_summary": $CERTIFICATE_SUMMARY_JSON
+  "cert_summary": ${CERTIFICATE_SUMMARY_JSON:-{}}
 }
 EOF
 )
