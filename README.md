@@ -10,10 +10,11 @@ This action verifies that Git tags are properly signed with Gitsign, extracts th
 
 - Verify tags signed with Gitsign
 - Extract and display tag information (name, commit, tagger, message)
-- Extract certificate information from signed tags
-- Generate detailed verification reports
+- Extract certificate information from signed tags using [sigspy](https://github.com/actionutils/sigspy)
+- Generate detailed verification reports with certificate summaries
 - Display results in GitHub Actions step summary
 - Efficient tag verification with minimal repository cloning
+- Enable custom policy validation using certificate summary data
 
 ## Usage
 
@@ -51,6 +52,35 @@ This action verifies that Git tags are properly signed with Gitsign, extracts th
     # Access specific fields from the verification result
     TAG_NAME=$(echo '${{ steps.verify.outputs.verification-result }}' | jq -r '.tag.name')
     echo "Tag name from result: $TAG_NAME"
+
+### Custom Policy Validation
+
+The action extracts detailed certificate information using [sigspy](https://github.com/actionutils/sigspy), enabling custom policy validation that goes beyond basic Gitsign verification:
+
+```yaml
+- name: Verify Tag with Custom Policy
+  id: verify
+  uses: actionutils/trusted-tag-verifier@v1
+  with:
+    verify: 'owner/repo@v1.0.0'
+
+- name: Validate Git Reference Policy
+  run: |
+    # Validate that the tag was created from main branch
+    SOURCE_REF="${{ fromJSON(steps.verify.outputs.verification-result).cert_summary.SourceRepositoryRef }}"
+    if [[ "$SOURCE_REF" != "refs/heads/main" ]]; then
+      echo "❌ Tag must be created from main branch, got: $SOURCE_REF"
+      exit 1
+    fi
+    
+    # Validate workflow repository matches expected org
+    WORKFLOW_REPO="${{ fromJSON(steps.verify.outputs.verification-result).cert_summary.GithubWorkflowRepository }}"
+    if [[ "$WORKFLOW_REPO" != "your-org/"* ]]; then
+      echo "❌ Invalid workflow repository: $WORKFLOW_REPO"
+      exit 1
+    fi
+    
+    echo "✅ Custom policy validation passed"
 ```
 
 ## Inputs
@@ -81,7 +111,7 @@ This action verifies that Git tags are properly signed with Gitsign, extracts th
 
 ## Verification Result Format
 
-The `verification-result` output provides a JSON object with details about the verification:
+The `verification-result` output provides a JSON object with details about the verification. The `cert_summary` field contains detailed certificate information extracted using [sigspy](https://github.com/actionutils/sigspy), which can be used for custom policy validation:
 
 ```json
 {
@@ -98,6 +128,28 @@ The `verification-result` output provides a JSON object with details about the v
   "signature": {
     "verified": true,
     "timestamp": "2025-04-11T12:00:00Z"
+  },
+  "cert_summary": {
+    "BuildConfigDigest": "2f0158cee2ca80feda6a0e13395d35f45613240c",
+    "BuildConfigURI": "https://github.com/actionutils/trusted-tag-verifier/.github/workflows/release.yml@refs/heads/main",
+    "BuildSignerDigest": "1b72eaca3cace8970af9c4beeb605b5769db40ef",
+    "BuildSignerURI": "https://github.com/actionutils/trusted-tag-releaser/.github/workflows/trusted-release-workflow.yml@refs/tags/v0",
+    "BuildTrigger": "push",
+    "GithubWorkflowName": "Release",
+    "GithubWorkflowRef": "refs/heads/main",
+    "GithubWorkflowRepository": "actionutils/trusted-tag-verifier",
+    "GithubWorkflowSHA": "2f0158cee2ca80feda6a0e13395d35f45613240c",
+    "GithubWorkflowTrigger": "push",
+    "Issuer": "https://token.actions.githubusercontent.com",
+    "RunInvocationURI": "https://github.com/actionutils/trusted-tag-verifier/actions/runs/14438795385/attempts/1",
+    "RunnerEnvironment": "github-hosted",
+    "SourceRepositoryDigest": "2f0158cee2ca80feda6a0e13395d35f45613240c",
+    "SourceRepositoryIdentifier": "965824984",
+    "SourceRepositoryOwnerIdentifier": "206433623",
+    "SourceRepositoryOwnerURI": "https://github.com/actionutils",
+    "SourceRepositoryRef": "refs/heads/main",
+    "SourceRepositoryURI": "https://github.com/actionutils/trusted-tag-verifier",
+    "SourceRepositoryVisibilityAtSigning": "public"
   }
 }
 ```
