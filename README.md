@@ -52,6 +52,21 @@ This action verifies that Git tags are properly signed with Gitsign, extracts th
     # Access specific fields from the verification result
     TAG_NAME=$(echo '${{ steps.verify.outputs.verification-result }}' | jq -r '.tag.name')
     echo "Tag name from result: $TAG_NAME"
+```
+
+### Auto-Detection of Downloaded Actions
+
+When using an action that's already been downloaded in the workflow, you can omit the `tag` parameter and let the verifier auto-detect it:
+
+```yaml
+- name: Use an action (this downloads it)
+  uses: owner/repo@v1.0.0
+
+- name: Verify the downloaded action
+  uses: actionutils/trusted-tag-verifier@v1
+  with:
+    repository: 'owner/repo'
+    # Tag is auto-detected from the downloaded action
 
 ### Custom Policy Validation
 
@@ -72,14 +87,14 @@ The action extracts detailed certificate information using [sigspy](https://gith
       echo "❌ Tag must be created from main branch, got: $SOURCE_REF"
       exit 1
     fi
-    
+
     # Validate workflow repository matches expected org
     WORKFLOW_REPO="${{ fromJSON(steps.verify.outputs.verification-result).cert_summary.GithubWorkflowRepository }}"
     if [[ "$WORKFLOW_REPO" != "your-org/"* ]]; then
       echo "❌ Invalid workflow repository: $WORKFLOW_REPO"
       exit 1
     fi
-    
+
     echo "✅ Custom policy validation passed"
 ```
 
@@ -89,12 +104,12 @@ The action extracts detailed certificate information using [sigspy](https://gith
 |-------|-------------|----------|---------|
 | `verify` | The repository and tag to verify in the format `<owner>/<repo>@<version>` | No | N/A |
 | `repository` | The repository containing the tag to verify (ignored if `verify` is provided) | No | N/A |
-| `tag` | The name of the tag to verify (ignored if `verify` is provided) | No | N/A |
+| `tag` | The name of the tag to verify (ignored if `verify` is provided). If omitted and the action is already downloaded in `$RUNNER_WORKSPACE`, the action will auto-detect the tag from the downloaded action path | No | N/A |
 | `fail-on-verification-error` | Whether to fail the action if verification fails | No | `true` |
 | `certificate-oidc-issuer` | The OIDC issuer to verify against | No | `https://token.actions.githubusercontent.com` |
 | `certificate-identity-regexp` | The identity regexp to verify against | No | `^https://github.com/actionutils/trusted-tag-releaser` |
 
-**Note**: Either `verify` OR both `repository` and `tag` must be provided.
+**Note**: Either `verify` OR both `repository` and `tag` must be provided. When only `repository` is provided without `tag`, the action will attempt to auto-detect the tag from downloaded actions in the runner workspace.
 
 ## Outputs
 
