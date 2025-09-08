@@ -26,8 +26,8 @@ else
       REPO=$(echo "$REPOSITORY" | cut -d '/' -f 2)
       echo "[DEBUG] Owner=$OWNER, Repo=$REPO"
 
-      # Look for downloaded action in $RUNNER_WORKSPACE/<owner>/<repo>/
-      ACTION_PATH="$RUNNER_WORKSPACE/$OWNER/$REPO"
+      # Look for downloaded action in $RUNNER_WORKSPACE/_actions/<owner>/<repo>/
+      ACTION_PATH="$RUNNER_WORKSPACE/_actions/$OWNER/$REPO"
       echo "[DEBUG] Checking for action at: $ACTION_PATH"
 
       if [[ -d "$ACTION_PATH" ]]; then
