@@ -43,11 +43,6 @@ else
 
   echo "repository=$REPOSITORY" >> $GITHUB_OUTPUT
   echo "tag=$TAG" >> $GITHUB_OUTPUT
-
-  if [[ -n "$TAG" ]]; then
-    echo "Using repository and tag parameters: $REPOSITORY@$TAG"
-  else
-    echo "Using repository parameter: $REPOSITORY (tag will be determined)"
-  fi
+  echo "Using repository and tag parameters: $REPOSITORY@$TAG"
 fi
 echo "::endgroup::"
