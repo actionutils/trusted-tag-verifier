@@ -11,6 +11,47 @@ on:
       - '**.md'
 
 jobs:
+  test-downloaded-action:
+    name: Test Downloaded Action Path Detection
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # First, use the action normally to download it
+      - name: Use trusted-tag-verifier to download it
+        uses: actionutils/trusted-tag-verifier@v0
+        with:
+          verify: 'actionutils/trusted-tag-releaser@v0.0.30'
+          fail-on-verification-error: 'false'
+
+      # Now test with empty tag - it should detect the downloaded action
+      - name: Test with empty tag (should use downloaded action)
+        id: test-empty-tag
+        uses: ./
+        with:
+          repository: 'actionutils/trusted-tag-verifier'
+          # Intentionally not providing tag - should detect from downloaded action
+          fail-on-verification-error: 'false'
+
+      - name: Display Results from Downloaded Action Detection
+        run: |
+          echo "Testing empty tag with downloaded action detection:"
+          echo "Verified: ${{ steps.test-empty-tag.outputs.verified }}"
+          echo "Repository: ${{ steps.test-empty-tag.outputs.repository }}"
+          echo "Tag: ${{ steps.test-empty-tag.outputs.tag-name }}"
+
+          # Check if a tag was detected
+          if [[ -n "${{ steps.test-empty-tag.outputs.tag-name }}" ]]; then
+            echo "✅ Test passed: Tag was detected from downloaded action"
+          else
+            echo "❌ Test failed: Tag was not detected from downloaded action"
+            exit 1
+          fi
+
   test-verify-tag:
     name: Test Tag Verification
     runs-on: ubuntu-latest
