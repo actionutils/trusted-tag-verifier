@@ -11,7 +11,7 @@ if [[ -z "$REPOSITORY" ]]; then
 fi
 
 if [[ -z "$TAG" ]]; then
-  echo "::error::Tag is required. Provide either 'verify' or 'tag' input."
+  echo "::error::Tag is required. Provide either 'verify' or 'tag' input. If using a downloaded action, ensure the action is properly downloaded in \$RUNNER_WORKSPACE."
   exit 1
 fi
 
