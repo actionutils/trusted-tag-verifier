@@ -56,17 +56,23 @@ This action verifies that Git tags are properly signed with Gitsign, extracts th
 
 ### Auto-Detection of Downloaded Actions
 
-When using an action that's already been downloaded in the workflow, you can omit the `tag` parameter and let the verifier auto-detect it:
+GitHub Actions automatically downloads all actions used in a workflow before execution. You can verify these actions by omitting the `tag` parameter:
 
 ```yaml
-- name: Use an action (this downloads it)
-  uses: owner/repo@v1.0.0
+jobs:
+  verify-and-use:
+    runs-on: ubuntu-latest
+    steps:
+      # First, verify the action before using it
+      - name: Verify action signature
+        uses: actionutils/trusted-tag-verifier@v1
+        with:
+          repository: 'owner/repo'
+          # Tag is auto-detected from the pre-downloaded action
 
-- name: Verify the downloaded action
-  uses: actionutils/trusted-tag-verifier@v1
-  with:
-    repository: 'owner/repo'
-    # Tag is auto-detected from the downloaded action
+      # Then use the verified action
+      - name: Use the verified action
+        uses: owner/repo@v1.0.0
 
 ### Custom Policy Validation
 
