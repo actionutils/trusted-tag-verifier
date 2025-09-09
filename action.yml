@@ -12,7 +12,7 @@ inputs:
     description: 'The repository containing the tag to verify (ignored if verify is provided)'
     required: false
   tag:
-    description: 'The name of the tag to verify (ignored if verify is provided)'
+    description: 'The name of the tag to verify (ignored if verify is provided). If omitted with repository, auto-detects from downloaded action in runner workspace'
     required: false
   fail-on-verification-error:
     description: 'Whether to fail the action if verification fails'

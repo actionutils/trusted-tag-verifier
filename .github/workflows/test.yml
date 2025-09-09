@@ -116,3 +116,23 @@ jobs:
             echo "❌ Test failed: Invalid certificate issuer verification did not fail"
             exit 1
           fi
+
+  test-downloaded-action:
+    name: Test Downloaded Action Path Detection
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v5
+
+      # Now test with empty tag - it should detect the downloaded action
+      - name: Test with empty tag (should use downloaded action)
+        uses: ./
+        with:
+          repository: 'actionutils/trusted-tag-verifier'
+
+      - name: Use trusted-tag-verifier as a target
+        uses: actionutils/trusted-tag-verifier@v0
+        with:
+          verify: 'actionutils/trusted-tag-releaser@v0'
