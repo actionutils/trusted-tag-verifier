@@ -20,7 +20,7 @@ if [[ -n "$TAG_CONTENT" ]]; then
   CERT_PART=$(echo "$TAG_CONTENT" | sed -n '/-BEGIN/, /-END/p' 2>/dev/null || echo "")
   if [[ -n "$CERT_PART" ]]; then
     CERT_INFO=$(echo "$CERT_PART" | sed 's/^ //g' | sed 's/gpgsig //g' | sed 's/SIGNED MESSAGE/PKCS7/g' | openssl pkcs7 -print -print_certs -text 2>/dev/null || echo "Failed to parse certificate")
-		CERT_JSON=$(echo "$CERT_PART" | sed 's/^ //g' | sed 's/gpgsig //g' | sigspy -input-format=pkcs7)
+            CERT_JSON=$(echo "$CERT_PART" | sed 's/^ //g' | sed 's/gpgsig //g' | sigspy -input-format=pkcs7 2>/dev/null || echo "{}")
   fi
 fi
 
