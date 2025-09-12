@@ -40,26 +40,25 @@ jobs:
           echo "Verification Result (JSON):"
           echo '${{ steps.verify-shorthand.outputs.verification-result }}' | jq
 
-      - name: Verify Tag (Explicit Parameters)
-        id: verify-explicit
+      - name: Verify Tag (With fail-on-verification-error false)
+        id: verify-no-fail
         uses: ./
         with:
-          repository: 'actionutils/trusted-tag-releaser'
-          tag: 'v0.0.30'
+          verify: 'actionutils/trusted-tag-releaser@v0.0.30'
           fail-on-verification-error: 'false'
 
-      - name: Display Verification Results (Explicit Parameters)
+      - name: Display Verification Results (With fail-on-verification-error false)
         run: |
-          echo "Verified: ${{ steps.verify-explicit.outputs.verified }}"
-          echo "Repository: ${{ steps.verify-explicit.outputs.repository }}"
-          echo "Tag: ${{ steps.verify-explicit.outputs.tag-name }}"
-          echo "Commit: ${{ steps.verify-explicit.outputs.commit-sha }}"
-          echo "Tagger: ${{ steps.verify-explicit.outputs.tagger-name }} <${{ steps.verify-explicit.outputs.tagger-email }}>"
-          echo "Message: ${{ steps.verify-explicit.outputs.tag-message }}"
+          echo "Verified: ${{ steps.verify-no-fail.outputs.verified }}"
+          echo "Repository: ${{ steps.verify-no-fail.outputs.repository }}"
+          echo "Tag: ${{ steps.verify-no-fail.outputs.tag-name }}"
+          echo "Commit: ${{ steps.verify-no-fail.outputs.commit-sha }}"
+          echo "Tagger: ${{ steps.verify-no-fail.outputs.tagger-name }} <${{ steps.verify-no-fail.outputs.tagger-email }}>"
+          echo "Message: ${{ steps.verify-no-fail.outputs.tag-message }}"
 
           # Display the full JSON
           echo "Verification Result (JSON):"
-          echo '${{ steps.verify-explicit.outputs.verification-result }}' | jq
+          echo '${{ steps.verify-no-fail.outputs.verification-result }}' | jq
 
       - name: Test Invalid Tag (Should Fail)
         id: verify-invalid-tag
@@ -82,8 +81,7 @@ jobs:
         id: verify-invalid-issuer
         uses: ./
         with:
-          repository: 'actionutils/trusted-tag-releaser'
-          tag: 'v0.0.30'
+          verify: 'actionutils/trusted-tag-releaser@v0.0.30'
           certificate-oidc-issuer: 'https://invalid-issuer.example.com'
           fail-on-verification-error: 'false'
 
@@ -102,8 +100,7 @@ jobs:
         id: verify-invalid-issuer-fail
         uses: ./
         with:
-          repository: 'actionutils/trusted-tag-releaser'
-          tag: 'v0.0.30'
+          verify: 'actionutils/trusted-tag-releaser@v0.0.30'
           certificate-oidc-issuer: 'https://invalid-issuer.example.com'
           fail-on-verification-error: 'true'
         continue-on-error: true
@@ -117,20 +114,14 @@ jobs:
             exit 1
           fi
 
-  test-downloaded-action:
-    name: Test Downloaded Action Path Detection
+  test-verify-format:
+    name: Test Verify Format
     runs-on: ubuntu-latest
     permissions:
       contents: read
 
     steps:
       - uses: actions/checkout@v5
-
-      # Now test with empty tag - it should detect the downloaded action
-      - name: Test with empty tag (should use downloaded action)
-        uses: ./
-        with:
-          repository: 'actionutils/trusted-tag-verifier'
 
       - name: Use trusted-tag-verifier as a target
         uses: actionutils/trusted-tag-verifier@v0

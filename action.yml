@@ -7,13 +7,7 @@ branding:
 inputs:
   verify:
     description: 'The repository and tag to verify in the format <owner>/<repo>@<version>'
-    required: false
-  repository:
-    description: 'The repository containing the tag to verify (ignored if verify is provided)'
-    required: false
-  tag:
-    description: 'The name of the tag to verify (ignored if verify is provided). If omitted with repository, auto-detects from downloaded action in runner workspace'
-    required: false
+    required: true
   fail-on-verification-error:
     description: 'Whether to fail the action if verification fails'
     required: false
@@ -68,7 +62,7 @@ runs:
     - name: Parse inputs
       id: parse-inputs
       shell: bash
-      run: ${{ github.action_path }}/scripts/parse-inputs.sh "${{ inputs.verify }}" "${{ inputs.repository }}" "${{ inputs.tag }}"
+      run: ${{ github.action_path }}/scripts/parse-inputs.sh "${{ inputs.verify }}"
 
     - name: Validate inputs
       id: validate-inputs
