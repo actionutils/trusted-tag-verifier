@@ -103,14 +103,14 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      # First download an action so it exists in the runner workspace
-      - name: Use trusted-tag-verifier as a target (to download it)
-        uses: actionutils/trusted-tag-verifier@v0
-        with:
-          verify: 'actionutils/trusted-tag-releaser@v0'
-
-      # Now test with no @ref - it should detect the downloaded action
+      # Test with no @ref - it should detect the downloaded action
       - name: Test with no @ref (should use downloaded action)
         uses: ./
         with:
           verify: 'actionutils/trusted-tag-verifier'
+
+      # Now use the actual trusted-tag-verifier that was pre-downloaded by the runner
+      - name: Use trusted-tag-verifier as a target
+        uses: actionutils/trusted-tag-verifier@v0
+        with:
+          verify: 'actionutils/trusted-tag-releaser@v0'
