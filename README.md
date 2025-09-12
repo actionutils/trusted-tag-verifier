@@ -76,7 +76,7 @@ jobs:
 
 ### Custom Policy Validation
 
-The action extracts detailed certificate information using [sigspy](https://github.com/actionutils/sigspy), enabling custom policy validation that goes beyond basic Gitsign verification:
+The action extracts detailed certificate information using [sigspy](https://github.com/actionutils/sigspy). You can use these fields for custom policy validation that goes beyond basic Gitsign verification:
 
 ```yaml
 - name: Verify Tag with Custom Policy
@@ -88,15 +88,15 @@ The action extracts detailed certificate information using [sigspy](https://gith
 - name: Validate Git Reference Policy
   run: |
     # Validate that the tag was created from main branch
-    SOURCE_REF="${{ fromJSON(steps.verify.outputs.verification-result).cert_summary.SourceRepositoryRef }}"
+    SOURCE_REF="${{ fromJSON(steps.verify.outputs.verification-result).cert_summary.fulcio_extensions.SourceRepositoryRef }}"
     if [[ "$SOURCE_REF" != "refs/heads/main" ]]; then
       echo "❌ Tag must be created from main branch, got: $SOURCE_REF"
       exit 1
     fi
 
     # Validate workflow repository matches expected org
-    WORKFLOW_REPO="${{ fromJSON(steps.verify.outputs.verification-result).cert_summary.GithubWorkflowRepository }}"
-    if [[ "$WORKFLOW_REPO" != "your-org/"* ]]; then
+    WORKFLOW_REPO="${{ fromJSON(steps.verify.outputs.verification-result).cert_summary.fulcio_extensions.GithubWorkflowRepository }}"
+    if [[ "$WORKFLOW_REPO" != your-org/* ]]; then
       echo "❌ Invalid workflow repository: $WORKFLOW_REPO"
       exit 1
     fi
@@ -132,7 +132,7 @@ The action extracts detailed certificate information using [sigspy](https://gith
 
 ## Verification Result Format
 
-The `verification-result` output provides a JSON object with details about the verification. The `cert_summary` field contains detailed certificate information extracted using [sigspy](https://github.com/actionutils/sigspy), which can be used for custom policy validation:
+The `verification-result` output provides a JSON object with details about the verification. The `cert_summary` field contains certificate information extracted using sigspy. Example structure:
 
 ```json
 {
@@ -151,26 +151,56 @@ The `verification-result` output provides a JSON object with details about the v
     "timestamp": "2025-04-11T12:00:00Z"
   },
   "cert_summary": {
-    "BuildConfigDigest": "2f0158cee2ca80feda6a0e13395d35f45613240c",
-    "BuildConfigURI": "https://github.com/actionutils/trusted-tag-verifier/.github/workflows/release.yml@refs/heads/main",
-    "BuildSignerDigest": "1b72eaca3cace8970af9c4beeb605b5769db40ef",
-    "BuildSignerURI": "https://github.com/actionutils/trusted-tag-releaser/.github/workflows/trusted-release-workflow.yml@refs/tags/v0",
-    "BuildTrigger": "push",
-    "GithubWorkflowName": "Release",
-    "GithubWorkflowRef": "refs/heads/main",
-    "GithubWorkflowRepository": "actionutils/trusted-tag-verifier",
-    "GithubWorkflowSHA": "2f0158cee2ca80feda6a0e13395d35f45613240c",
-    "GithubWorkflowTrigger": "push",
-    "Issuer": "https://token.actions.githubusercontent.com",
-    "RunInvocationURI": "https://github.com/actionutils/trusted-tag-verifier/actions/runs/14438795385/attempts/1",
-    "RunnerEnvironment": "github-hosted",
-    "SourceRepositoryDigest": "2f0158cee2ca80feda6a0e13395d35f45613240c",
-    "SourceRepositoryIdentifier": "965824984",
-    "SourceRepositoryOwnerIdentifier": "206433623",
-    "SourceRepositoryOwnerURI": "https://github.com/actionutils",
-    "SourceRepositoryRef": "refs/heads/main",
-    "SourceRepositoryURI": "https://github.com/actionutils/trusted-tag-verifier",
-    "SourceRepositoryVisibilityAtSigning": "public"
+    "version": "1",
+    "input": { "detectedFormat": "pkcs7" },
+    "certificate": {
+      "subject": { "commonName": "sigstore" },
+      "issuer": { "commonName": "Fulcio" },
+      "serialNumberHex": "01AB…",
+      "notBefore": "2025-01-01T00:00:00Z",
+      "notAfter": "2025-01-02T00:00:00Z",
+      "sha256FingerprintHex": "A1B2…",
+      "publicKeyAlgorithm": "RSA"
+    },
+    "fulcio_extensions": {
+      "Issuer": "https://token.actions.githubusercontent.com",
+      "GithubWorkflowTrigger": "push",
+      "GithubWorkflowSHA": "6423fad6c58f6fcd38145aa5308e943325686962",
+      "GithubWorkflowName": "Release",
+      "GithubWorkflowRepository": "actionutils/trusted-tag-verifier",
+      "GithubWorkflowRef": "refs/heads/main",
+      "BuildSignerURI": "https://github.com/actionutils/trusted-tag-releaser/.github/workflows/trusted-release-workflow.yml@refs/tags/v0",
+      "BuildSignerDigest": "aa7d015f1705240a9a6f58e5aabc1817f7854b47",
+      "RunnerEnvironment": "github-hosted",
+      "SourceRepositoryURI": "https://github.com/actionutils/trusted-tag-verifier",
+      "SourceRepositoryDigest": "6423fad6c58f6fcd38145aa5308e943325686962",
+      "SourceRepositoryRef": "refs/heads/main",
+      "SourceRepositoryIdentifier": "965824984",
+      "SourceRepositoryOwnerURI": "https://github.com/actionutils",
+      "SourceRepositoryOwnerIdentifier": "206433623",
+      "BuildConfigURI": "https://github.com/actionutils/trusted-tag-verifier/.github/workflows/release.yml@refs/heads/main",
+      "BuildConfigDigest": "6423fad6c58f6fcd38145aa5308e943325686962",
+      "BuildTrigger": "push",
+      "RunInvocationURI": "https://github.com/actionutils/trusted-tag-verifier/actions/runs/16056998762/attempts/1",
+      "SourceRepositoryVisibilityAtSigning": "public"
+    },
+    "cms": {
+      "hasSignedAttributes": true,
+      "signedAttributesDERBase64": "…",
+      "signedAttributesSHA256Hex": "…",
+      "signatureAlgorithm": "1.2.840.113549.1.1.11",
+      "signatureBase64": "…"
+    },
+    "rekor": {
+      "present": true,
+      "oid": "1.3.6.1.4.1.57264.3.1",
+      "transparencyLogEntry": { "logIndex": 123, "integratedTime": 1700000000, "logId": { "keyId": "…" }, "inclusionProof": { "logIndex": 123, "treeSize": 456, "rootHash": "…", "hashes": ["…"] } }
+    },
+    "ct": {
+      "precertificateSCTs": [
+        { "version": 1, "logIDHex": "…", "timestampMs": 1700000000000, "timestampRFC3339": "2023-11-14T00:00:00Z", "hashAlgorithm": "sha256", "signatureAlgorithm": "ecdsa", "signatureBase64": "…" }
+      ]
+    }
   }
 }
 ```

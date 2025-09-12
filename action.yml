@@ -62,7 +62,7 @@ runs:
 
     - uses: binary-install/setup-x@641763050d33725178ab052a240cb72ebaa104fe
       with:
-        script_url: https://github.com/actionutils/sigspy/releases/download/v1.0.0/install.sh
+        script_url: https://github.com/actionutils/sigspy/releases/download/v2.0.3/install.sh
         gh_attestations_verify_flags: --repo=actionutils/sigspy --signer-repo=actionutils/trusted-go-releaser
 
     - name: Parse inputs
