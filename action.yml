@@ -6,7 +6,7 @@ branding:
 
 inputs:
   verify:
-    description: 'The repository and tag to verify in the format <owner>/<repo>@<version>'
+    description: 'The repository and tag to verify in the format <owner>/<repo>@<version> or <owner>/<repo> (auto-detects from downloaded action)'
     required: true
   fail-on-verification-error:
     description: 'Whether to fail the action if verification fails'

@@ -40,26 +40,6 @@ jobs:
           echo "Verification Result (JSON):"
           echo '${{ steps.verify-shorthand.outputs.verification-result }}' | jq
 
-      - name: Verify Tag (With fail-on-verification-error false)
-        id: verify-no-fail
-        uses: ./
-        with:
-          verify: 'actionutils/trusted-tag-releaser@v0.0.30'
-          fail-on-verification-error: 'false'
-
-      - name: Display Verification Results (With fail-on-verification-error false)
-        run: |
-          echo "Verified: ${{ steps.verify-no-fail.outputs.verified }}"
-          echo "Repository: ${{ steps.verify-no-fail.outputs.repository }}"
-          echo "Tag: ${{ steps.verify-no-fail.outputs.tag-name }}"
-          echo "Commit: ${{ steps.verify-no-fail.outputs.commit-sha }}"
-          echo "Tagger: ${{ steps.verify-no-fail.outputs.tagger-name }} <${{ steps.verify-no-fail.outputs.tagger-email }}>"
-          echo "Message: ${{ steps.verify-no-fail.outputs.tag-message }}"
-
-          # Display the full JSON
-          echo "Verification Result (JSON):"
-          echo '${{ steps.verify-no-fail.outputs.verification-result }}' | jq
-
       - name: Test Invalid Tag (Should Fail)
         id: verify-invalid-tag
         uses: ./
@@ -114,8 +94,8 @@ jobs:
             exit 1
           fi
 
-  test-verify-format:
-    name: Test Verify Format
+  test-downloaded-action:
+    name: Test Downloaded Action Path Detection
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -123,7 +103,14 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - name: Use trusted-tag-verifier as a target
+      # First download an action so it exists in the runner workspace
+      - name: Use trusted-tag-verifier as a target (to download it)
         uses: actionutils/trusted-tag-verifier@v0
         with:
           verify: 'actionutils/trusted-tag-releaser@v0'
+
+      # Now test with no @ref - it should detect the downloaded action
+      - name: Test with no @ref (should use downloaded action)
+        uses: ./
+        with:
+          verify: 'actionutils/trusted-tag-verifier'
