@@ -29,9 +29,14 @@ else
       if [[ -d "$ACTION_PATH" ]]; then
         echo "::notice::Tag not provided, checking for downloaded action at $ACTION_PATH"
 
-        # Find the most recent directory (version/ref) in the action path
-        # This could be a tag like v1.0.0 or a commit ref
-        REF=$(ls -1t "$ACTION_PATH" 2>/dev/null | head -n 1)
+        # Find the most recent ref directory only; ignore watermark files like
+        # "<ref>.completed" that the runner creates.
+        # ref: https://github.com/actions/runner/blame/f9c4e17fd98db89cd9b1f05f156a9f7a8562522d/src/Runner.Worker/ActionManager.cs#L932
+        latest_dir=$(ls -1td -- "$ACTION_PATH"/*/ 2>/dev/null | head -n 1)
+        REF=""
+        if [[ -n "$latest_dir" ]]; then
+          REF="$(basename "$latest_dir")"
+        fi
 
         if [[ -n "$REF" ]]; then
           TAG="$REF"
