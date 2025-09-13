@@ -25,6 +25,9 @@ outputs:
   verified:
     description: 'Whether the tag was successfully verified (true/false)'
     value: ${{ steps.verify-tag.outputs.verified }}
+  tlog-index:
+    description: 'The Rekor transparency log index parsed from gitsign output'
+    value: ${{ steps.verify-tag.outputs.tlog-index }}
   repository:
     description: 'The repository that was verified (e.g., owner/repo)'
     value: ${{ steps.parse-inputs.outputs.repository }}
@@ -111,6 +114,7 @@ runs:
           "${{ steps.extract-tag-info.outputs.tagger-email }}" \
           "${{ steps.extract-tag-info.outputs.tagger-timestamp }}" \
           "${{ steps.extract-tag-info.outputs.tag-message }}" \
+          "${{ steps.verify-tag.outputs.tlog-index }}" \
 
     - name: Summary
       id: summary
@@ -126,4 +130,5 @@ runs:
           "${{ steps.extract-tag-info.outputs.tagger-name }}" \
           "${{ steps.extract-tag-info.outputs.tagger-email }}" \
           "${{ inputs.certificate-oidc-issuer }}" \
-          "${{ inputs.certificate-identity-regexp }}"
+          "${{ inputs.certificate-identity-regexp }}" \
+          "${{ steps.verify-tag.outputs.tlog-index }}"
