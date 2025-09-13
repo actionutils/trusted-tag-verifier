@@ -33,6 +33,19 @@ fi
 # Add to GitHub step summary
 echo "## Tag Verification Results" >> $GITHUB_STEP_SUMMARY
 echo "" >> $GITHUB_STEP_SUMMARY
+
+# Details summary line with repository, tag and verification status
+if [[ "$VERIFIED" == "true" ]]; then
+  SUMMARY_STATUS="✅ Verified"
+else
+  SUMMARY_STATUS="❌ Not verified"
+fi
+
+echo "<details>" >> $GITHUB_STEP_SUMMARY
+echo "<summary><strong>$REPOSITORY</strong> @ <code>$TAG</code> — $SUMMARY_STATUS</summary>" >> $GITHUB_STEP_SUMMARY
+echo "" >> $GITHUB_STEP_SUMMARY
+
+# The markdown table inside details
 echo "| Property | Value |" >> $GITHUB_STEP_SUMMARY
 echo "| --- | --- |" >> $GITHUB_STEP_SUMMARY
 echo "| Repository | [$REPOSITORY]($REPO_URL) |" >> $GITHUB_STEP_SUMMARY
@@ -52,5 +65,9 @@ if [[ "$VERIFIED" == "true" ]]; then
 else
   echo "| Verification | ❌ FAILED |" >> $GITHUB_STEP_SUMMARY
 fi
+
+# Close details block
+echo "" >> $GITHUB_STEP_SUMMARY
+echo "</details>" >> $GITHUB_STEP_SUMMARY
 
 echo "::endgroup::"
