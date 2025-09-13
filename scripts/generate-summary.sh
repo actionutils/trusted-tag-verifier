@@ -10,6 +10,7 @@ TAGGER_NAME="$5"
 TAGGER_EMAIL="$6"
 CERTIFICATE_OIDC_ISSUER="$7"
 CERTIFICATE_IDENTITY_REGEXP="$8"
+TLOG_INDEX="$9"
 
 # Construct GitHub URLs
 REPO_URL="https://github.com/$REPOSITORY"
@@ -23,6 +24,9 @@ echo "Tagger: $TAGGER_NAME <$TAGGER_EMAIL>"
 echo "Expected Certificate OIDC Issuer: $CERTIFICATE_OIDC_ISSUER"
 echo "Expected Certificate Identity Regexp: $CERTIFICATE_IDENTITY_REGEXP"
 echo "Certification Summary JSON: $CERTIFICATE_SUMMARY_JSON"
+if [[ -n "$TLOG_INDEX" ]]; then
+  echo "Rekor tlog index: $TLOG_INDEX (https://search.sigstore.dev/?logIndex=$TLOG_INDEX)"
+fi
 
 if [[ "$VERIFIED" == "true" ]]; then
   echo "✅ Tag verification: SUCCESS"
@@ -54,6 +58,9 @@ echo "| Commit | [$COMMIT_SHA]($COMMIT_URL) |" >> $GITHUB_STEP_SUMMARY
 echo "| Tagger | $TAGGER_NAME <$TAGGER_EMAIL> |" >> $GITHUB_STEP_SUMMARY
 echo "| Expected Certificate OIDC Issuer | \`$CERTIFICATE_OIDC_ISSUER\` |" >> $GITHUB_STEP_SUMMARY
 echo "| Expected Certificate Identity Regexp | \`$CERTIFICATE_IDENTITY_REGEXP\` |" >> $GITHUB_STEP_SUMMARY
+if [[ -n "$TLOG_INDEX" ]]; then
+  echo "| Rekor tlog index | [$TLOG_INDEX](https://search.sigstore.dev/?logIndex=$TLOG_INDEX) |" >> $GITHUB_STEP_SUMMARY
+fi
 
 # Include key-value pairs from .fulcio_extensions
 if [[ -n "$CERTIFICATE_SUMMARY_JSON" ]] && [[ "$CERTIFICATE_SUMMARY_JSON" != "{}" ]]; then

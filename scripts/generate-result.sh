@@ -9,6 +9,7 @@ TAGGER_NAME="$4"
 TAGGER_EMAIL="$5"
 TAGGER_TIMESTAMP="$6"
 TAG_MESSAGE="$7"
+TLOG_INDEX="$8"
 
 # Get current timestamp in ISO 8601 format
 CURRENT_TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
@@ -32,6 +33,7 @@ JSON=$(jq -n \
   --arg tag_message "$TAG_MESSAGE" \
   --argjson verified "$VERIFIED" \
   --arg current_timestamp "$CURRENT_TIMESTAMP" \
+  --arg tlog_index "$TLOG_INDEX" \
   --argjson cert_summary "$CERTIFICATE_SUMMARY_JSON" \
   '{
     tag: {
@@ -44,10 +46,10 @@ JSON=$(jq -n \
       },
       message: $tag_message
     },
-    signature: {
-      verified: $verified,
-      timestamp: $current_timestamp
-    },
+    signature: (
+      { verified: $verified, timestamp: $current_timestamp }
+      + (if $tlog_index != "" then { tlog_index: $tlog_index } else {} end)
+    ),
     cert_summary: $cert_summary
   }')
 

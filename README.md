@@ -47,6 +47,8 @@ This action verifies that Git tags are properly signed with Gitsign, extracts th
     echo "Commit: ${{ steps.verify.outputs.commit-sha }}"
     echo "Tagger: ${{ steps.verify.outputs.tagger-name }} <${{ steps.verify.outputs.tagger-email }}>"
     echo "Message: ${{ steps.verify.outputs.tag-message }}"
+    echo "Rekor tlog index: ${{ steps.verify.outputs.tlog-index }}"
+    echo "Rekor entry: https://search.sigstore.dev/?logIndex=${{ steps.verify.outputs.tlog-index }}"
 
     # Access specific fields from the verification result
     TAG_NAME=$(echo '${{ steps.verify.outputs.verification-result }}' | jq -r '.tag.name')
@@ -125,6 +127,7 @@ The action extracts detailed certificate information using [sigspy](https://gith
 | `tagger-name` | The name of the tagger |
 | `tagger-email` | The email of the tagger |
 | `tag-message` | The message associated with the tag |
+| `tlog-index` | Rekor transparency log index parsed from gitsign output |
 | `verification-result` | The complete verification result as a JSON string |
 
 ## Verification Result Format
@@ -145,7 +148,8 @@ The `verification-result` output provides a JSON object with details about the v
   },
   "signature": {
     "verified": true,
-    "timestamp": "2025-04-11T12:00:00Z"
+    "timestamp": "2025-04-11T12:00:00Z",
+    "tlog_index": "486334935"
   },
   "cert_summary": {
     "version": "1",
