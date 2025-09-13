@@ -1,5 +1,7 @@
 # Trusted Tag Verifier
 
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/actionutils/trusted-tag-verifier/badge)](https://scorecard.dev/viewer/?uri=github.com/actionutils/trusted-tag-verifier)
+
 A GitHub Action to verify tags signed with [Gitsign](https://github.com/sigstore/gitsign) and display their contents.
 
 ## Overview
