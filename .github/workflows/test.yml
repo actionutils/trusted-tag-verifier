@@ -40,27 +40,6 @@ jobs:
           echo "Verification Result (JSON):"
           echo '${{ steps.verify-shorthand.outputs.verification-result }}' | jq
 
-      - name: Verify Tag (Explicit Parameters)
-        id: verify-explicit
-        uses: ./
-        with:
-          repository: 'actionutils/trusted-tag-releaser'
-          tag: 'v0.0.30'
-          fail-on-verification-error: 'false'
-
-      - name: Display Verification Results (Explicit Parameters)
-        run: |
-          echo "Verified: ${{ steps.verify-explicit.outputs.verified }}"
-          echo "Repository: ${{ steps.verify-explicit.outputs.repository }}"
-          echo "Tag: ${{ steps.verify-explicit.outputs.tag-name }}"
-          echo "Commit: ${{ steps.verify-explicit.outputs.commit-sha }}"
-          echo "Tagger: ${{ steps.verify-explicit.outputs.tagger-name }} <${{ steps.verify-explicit.outputs.tagger-email }}>"
-          echo "Message: ${{ steps.verify-explicit.outputs.tag-message }}"
-
-          # Display the full JSON
-          echo "Verification Result (JSON):"
-          echo '${{ steps.verify-explicit.outputs.verification-result }}' | jq
-
       - name: Test Invalid Tag (Should Fail)
         id: verify-invalid-tag
         uses: ./
@@ -82,8 +61,7 @@ jobs:
         id: verify-invalid-issuer
         uses: ./
         with:
-          repository: 'actionutils/trusted-tag-releaser'
-          tag: 'v0.0.30'
+          verify: 'actionutils/trusted-tag-releaser@v0.0.30'
           certificate-oidc-issuer: 'https://invalid-issuer.example.com'
           fail-on-verification-error: 'false'
 
@@ -102,8 +80,7 @@ jobs:
         id: verify-invalid-issuer-fail
         uses: ./
         with:
-          repository: 'actionutils/trusted-tag-releaser'
-          tag: 'v0.0.30'
+          verify: 'actionutils/trusted-tag-releaser@v0.0.30'
           certificate-oidc-issuer: 'https://invalid-issuer.example.com'
           fail-on-verification-error: 'true'
         continue-on-error: true
@@ -126,12 +103,13 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      # Now test with empty tag - it should detect the downloaded action
-      - name: Test with empty tag (should use downloaded action)
+      # Test with no @ref - it should detect the downloaded action
+      - name: Test with no @ref (should use downloaded action)
         uses: ./
         with:
-          repository: 'actionutils/trusted-tag-verifier'
+          verify: 'actionutils/trusted-tag-verifier'
 
+      # Now use the actual trusted-tag-verifier that was pre-downloaded by the runner
       - name: Use trusted-tag-verifier as a target
         uses: actionutils/trusted-tag-verifier@v0
         with:

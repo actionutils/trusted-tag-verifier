@@ -18,8 +18,7 @@ jobs:
       - name: Verify Trusted Tag Releaser
         uses: ./
         with:
-          repository: 'actionutils/trusted-tag-releaser'
-          tag: 'v0'
+          verify: 'actionutils/trusted-tag-releaser@v0'
 
   # Post version bump information comment on PR when labeled
   release-preview-comment:
@@ -69,4 +68,3 @@ jobs:
     uses: actionutils/trusted-tag-releaser/.github/workflows/trusted-release-workflow.yml@v0
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
-
