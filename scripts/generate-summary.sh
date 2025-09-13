@@ -42,7 +42,7 @@ else
 fi
 
 echo "<details>" >> $GITHUB_STEP_SUMMARY
-echo "<summary><strong>$REPOSITORY</strong> @ <code>$TAG</code> — $SUMMARY_STATUS</summary>" >> $GITHUB_STEP_SUMMARY
+echo "<summary><code>$REPOSITORY@$TAG</code> — $SUMMARY_STATUS</summary>" >> $GITHUB_STEP_SUMMARY
 echo "" >> $GITHUB_STEP_SUMMARY
 
 # The markdown table inside details
