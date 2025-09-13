@@ -74,7 +74,7 @@ runs:
 
     - name: Checkout repository
       id: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         repository: ${{ steps.parse-inputs.outputs.repository }}
         ref: refs/tags/${{ steps.parse-inputs.outputs.tag }}
