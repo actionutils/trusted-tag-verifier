@@ -57,7 +57,7 @@ runs:
       id: setup-gitsign
       uses: chainguard-dev/actions/setup-gitsign@1054a7f14edea88ef30dc2732c0a5e8d05db4ecc
 
-    - uses: binary-install/setup-x@641763050d33725178ab052a240cb72ebaa104fe
+    - uses: binary-install/setup-x@eef8114ede681d687e6955d8bc11f008b83a709e
       with:
         script_url: https://github.com/actionutils/sigspy/releases/download/v2.0.3/install.sh
         gh_attestations_verify_flags: --repo=actionutils/sigspy --signer-repo=actionutils/trusted-go-releaser
