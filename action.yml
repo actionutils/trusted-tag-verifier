@@ -132,3 +132,11 @@ runs:
           "${{ inputs.certificate-oidc-issuer }}" \
           "${{ inputs.certificate-identity-regexp }}" \
           "${{ steps.verify-tag.outputs.tlog-index }}"
+
+    - name: Cleanup
+      if: always()
+      shell: bash
+      run: |
+        if [ -d "__tag_verifier_target__" ]; then
+          rm -rf __tag_verifier_target__
+        fi
