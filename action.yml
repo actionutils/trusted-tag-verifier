@@ -55,7 +55,7 @@ runs:
   steps:
     - name: Setup Gitsign
       id: setup-gitsign
-      uses: chainguard-dev/actions/setup-gitsign@1054a7f14edea88ef30dc2732c0a5e8d05db4ecc
+      uses: chainguard-dev/actions/setup-gitsign@7b18ea9960f945cabf19a84752e580829347f4ed
 
     - uses: binary-install/setup-x@eef8114ede681d687e6955d8bc11f008b83a709e
       with:
